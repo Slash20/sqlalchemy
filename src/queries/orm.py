@@ -1,5 +1,4 @@
 from database import async_engine, sync_engine, session_factory
-from sqlalchemy import text, insert
 from models import metadata_obj, WorkersORM
 
 

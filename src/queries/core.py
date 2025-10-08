@@ -2,17 +2,6 @@ from database import async_engine, sync_engine
 from sqlalchemy import text, insert
 from models import metadata_obj, workers_table
 
-# async def async_get_db():
-#     async with async_engine.connect() as conn:
-#         res = await conn.execute(text("SELECT VERSION()"))
-#         print(f"{res.first()=}")
-
-
-def sync_get_db():
-    with sync_engine.connect() as conn:
-        res = conn.execute(text("SELECT VERSION()"))
-        print(f"{res.first()=}")
-
 
 def create_tables():
     sync_engine.echo = False
@@ -35,15 +24,5 @@ def insert_data():
         )
         conn.execute(stmt)
         conn.commit()
-
-
-
-
-
-
-
-
-
-
 
 

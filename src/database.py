@@ -22,6 +22,7 @@ async_session_factory = async_sessionmaker(async_engine)
 
 type_str_200 = Annotated[str, 200]
 
+
 class Base(DeclarativeBase):
     type_annotation_map = {
         type_str_200: String(200)

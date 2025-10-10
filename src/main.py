@@ -1,8 +1,9 @@
 import os
 import sys
+from queries.orm import SyncORM
+from queries.core import SyncCore
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from queries.orm import create_tables, insert_data
-
-create_tables()
-insert_data()
+SyncORM.create_tables()
+SyncORM.insert_data()
+SyncCore.select_workers()

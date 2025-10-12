@@ -36,6 +36,15 @@ class SyncCore:
             print(f"{workers=}")
 
     @staticmethod
-    def update_workers(workers_id: int):
+    def update_workers(worker_id: int = 2, new_username: str = "Misha"):
         with sync_engine.connect() as conn:
-            ...
+            # stmt = text("UPDATE workers SET username=:username WHERE id=:id")
+            # stmt = stmt.bindparams(username=new_username, id=worker_id)
+            stmt = (
+                update(workers_table)
+                .values(username=new_username)
+                # .where(workers_table.c.id==worker_id)
+                .filter_by(id=worker_id)
+            )
+            conn.execute(stmt)
+            conn.commit()

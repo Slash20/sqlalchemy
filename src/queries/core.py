@@ -20,7 +20,7 @@ class SyncCore:
             # """
             stmt = insert(workers_table).values(
                 [
-                    {"username": "Bobr"},
+                    {"username": "Jack"},
                     {"username": "Wolf"},
                 ]
             )

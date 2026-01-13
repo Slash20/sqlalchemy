@@ -1,6 +1,6 @@
 from database import async_engine, sync_engine, session_factory, Base
 from models import WorkersORM, ResumeORM, Workload
-from sqlalchemy import select
+from sqlalchemy import select, func, Integer, and_
 
 
 class SyncORM:
@@ -8,9 +8,9 @@ class SyncORM:
     @staticmethod
     def create_tables():
         Base.metadata.drop_all(sync_engine)
-        sync_engine.echo = True
+        # sync_engine.echo = True
         Base.metadata.create_all(sync_engine)
-        sync_engine.echo = True
+        # sync_engine.echo = True
 
 
     @staticmethod
@@ -54,3 +54,30 @@ class SyncORM:
 
             session.add_all([resume1, resume2])
             session.commit()
+
+    @staticmethod
+    def avg_salary(like_language: str = "Python"):
+        """
+        select workload, avg(compensation)::int as avg_comp
+        from resumes
+        where title like '%Python%' and compensation > 40000
+        group by workload;
+        """
+        with session_factory() as session:
+            query = (
+                select(
+                    ResumeORM.workload,
+                    func.avg(ResumeORM.compensation).cast(Integer).label("avg_comp"),
+                )
+                .select_from(ResumeORM)
+                .filter(and_(
+                    ResumeORM.title.contains(like_language),
+                    ResumeORM.compensation > 40000,
+                ))
+                .group_by(ResumeORM.workload)
+                .having(func.avg(ResumeORM.compensation) > 40000)
+            )
+            print(query.compile(compile_kwargs={"literal_binds": True}))
+            res = session.execute(query)
+            result = res.all()
+            print(result)

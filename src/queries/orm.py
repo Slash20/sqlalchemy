@@ -1,6 +1,7 @@
 from database import async_engine, sync_engine, session_factory, Base
 from models import WorkersORM, ResumeORM, Workload
 from sqlalchemy import select, func, Integer, and_
+from sqlalchemy.orm import joinedload, selectinload
 
 
 class SyncORM:
@@ -81,3 +82,66 @@ class SyncORM:
             res = session.execute(query)
             result = res.all()
             print(result)
+
+
+    @staticmethod
+    def select_workers_lazy_relationship():
+        """
+        Такой код будет плохим, если мы обращаемся ко ВСЕМ работникам и у КАЖДОГО забираем резюме.
+        И тут возникает т.н. проблема N+1
+        """
+        with session_factory() as session:
+            query = (
+                select(WorkersORM)
+            )
+
+            res = session.execute(query)
+            result = res.scalars().all()
+
+            worker_1_resume = result[0].resumes
+            print(worker_1_resume)
+
+            worker_2_resume = result[1].resumes
+            print(worker_2_resume)
+
+    @staticmethod
+    def select_workers_joined_relationship():
+        """
+        В данном случае будет создаваться big запрос с возможным повторением PK,
+        поэтому надо вызывать unique (это чисто питновская штука, отсеивает повторяющиеся PK)
+        Но такой запрос не подходит для связи 1-M, но подходит для M-1, 1-1
+        """
+        with session_factory() as session:
+            query = (
+                select(WorkersORM)
+                .options(joinedload(WorkersORM.resumes))
+            )
+
+            res = session.execute(query)
+            result = res.unique().scalars().all()
+
+            worker_1_resume = result[0].resumes
+            print(worker_1_resume)
+
+            worker_2_resume = result[1].resumes
+            print(worker_2_resume)
+
+    @staticmethod
+    def select_workers_selectin_relationship():
+        """
+        Этот запрос работает для 1-M, M-M
+        """
+        with session_factory() as session:
+            query = (
+                select(WorkersORM)
+                .options(selectinload(WorkersORM.resumes))
+            )
+
+            res = session.execute(query)
+            result = res.unique().scalars().all()
+
+            worker_1_resume = result[0].resumes
+            print(worker_1_resume)
+
+            worker_2_resume = result[1].resumes
+            print(worker_2_resume)

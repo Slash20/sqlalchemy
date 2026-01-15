@@ -30,6 +30,11 @@ class WorkersORM(Base):
         back_populates="worker",
     )
 
+    resumes_parttime: Mapped[list["ResumeORM"]] = relationship(
+        back_populates="worker",
+        primaryjoin="and_(WorkersORM.id == ResumeORM.worker_id, ResumeORM.workload == 'parttime')",
+    )
+
 
 class ResumeORM(Base):
     __tablename__ = "resumes"

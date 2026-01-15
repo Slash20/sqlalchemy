@@ -18,6 +18,8 @@ class SyncCore:
                 [
                     {"username": "Jack"},
                     {"username": "Wolf"},
+                    {"username": "Alex"},
+                    {"username": "Sasha"},
                 ]
             )
             conn.execute(stmt)

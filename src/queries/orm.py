@@ -17,9 +17,11 @@ class SyncORM:
     @staticmethod
     def insert_workers():
         with session_factory() as session:
-            worker_bobr = WorkersORM(username="Jack")
+            worker_jack = WorkersORM(username="Jack")
             worker_wolf = WorkersORM(username="Wolf")
-            session.add_all([worker_bobr, worker_wolf])
+            worker_alex = WorkersORM(username="Alex")
+            worker_sasha = WorkersORM(username="Sasha")
+            session.add_all([worker_jack, worker_wolf, worker_alex, worker_sasha])
             session.flush()
             session.commit()
 
@@ -53,7 +55,15 @@ class SyncORM:
                 title="Java Developer", compensation=80000, workload=Workload.fulltime, worker_id=2
             )
 
-            session.add_all([resume1, resume2])
+            resume3 = ResumeORM(
+                title="Scala Developer", compensation=100000, workload=Workload.parttime, worker_id=3
+            )
+
+            resume4 = ResumeORM(
+                title="Go Developer", compensation=70000, workload=Workload.parttime, worker_id=4
+            )
+
+            session.add_all([resume1, resume2, resume3, resume4])
             session.commit()
 
     @staticmethod
@@ -145,3 +155,19 @@ class SyncORM:
 
             worker_2_resume = result[1].resumes
             print(worker_2_resume)
+
+
+    @staticmethod
+    def select_workers_with_condition_relationship():
+        with session_factory() as session:
+            query = (
+                select(WorkersORM)
+                .options(selectinload(WorkersORM.resumes_parttime))
+            )
+
+            res = session.execute(query)
+            result = res.unique().scalars().all()
+            print(result)
+
+
+

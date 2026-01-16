@@ -1,5 +1,6 @@
 from database import async_engine, sync_engine, session_factory, Base
 from models import WorkersORM, ResumeORM, Workload
+from shemas import WorkersDTO, WorkersRelDTO
 from sqlalchemy import select, func, Integer, and_
 from sqlalchemy.orm import joinedload, selectinload
 
@@ -162,12 +163,30 @@ class SyncORM:
         with session_factory() as session:
             query = (
                 select(WorkersORM)
-                .options(selectinload(WorkersORM.resumes_parttime))
+                .options(selectinload(WorkersORM.resumes))
             )
 
             res = session.execute(query)
             result = res.unique().scalars().all()
             print(result)
+            res_dto = [WorkersRelDTO.model_validate(row, from_attributes=True) for row in result] # Конвертация в json
+            print(res_dto)
 
+
+    @staticmethod
+    def convert_workers_to_dto():
+        with session_factory() as session:
+            query = (
+                select(WorkersORM)
+                .options(selectinload(WorkersORM.resumes))
+                # .limit(2)
+            )
+
+            res = session.execute(query)
+            result = res.scalars().all()
+            print(result)
+            res_dto = [WorkersRelDTO.model_validate(row, from_attributes=True) for row in result]  # Конвертация в json
+            print(res_dto)
+            return res_dto
 
 
